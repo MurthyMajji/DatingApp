@@ -1,17 +1,22 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
+import { Header } from './layout/header/header';
+import { AccountServices } from './core/services/account-services';
+import { Home } from './pages/home/home';
+import { IUser } from './types/user';
 
 @Component({
   selector: 'app-root',
-  imports: [],
+  imports: [Header, Home],
   templateUrl: './app.html',
-  styleUrl: './app.scss',
+  styleUrl: './app.css',
 })
 export class App implements OnInit {
+  private accountServices = inject(AccountServices);
   private http = inject(HttpClient);
   protected readonly title = signal('Dating App');
-  protected members = signal<any>([]);
+  protected members = signal<IUser[]>([]);
 
   // ngOnInit(): void {
   //   this.http.get('https://localhost:5001/api/members').subscribe({
@@ -32,11 +37,19 @@ export class App implements OnInit {
 
   async ngOnInit() {
     this.members.set(await this.getMembers());
+    this.setCurrentuser();
+  }
+
+  setCurrentuser() {
+    const userString = localStorage.getItem('user');
+    if (!userString) return;
+    const user = JSON.parse(userString);
+    this.accountServices.currentUser.set(user);
   }
 
   async getMembers() {
     try {
-      return firstValueFrom(this.http.get('https://localhost:5001/api/members'));
+      return firstValueFrom(this.http.get<IUser[]>('https://localhost:5001/api/members'));
     } catch (error) {
       console.warn('Error', error);
       throw error;
