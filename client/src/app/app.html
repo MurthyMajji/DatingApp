@@ -1,2 +1,5 @@
 <app-header></app-header>
-<app-home />
+
+<div class="mt-24" [class]="router.url == '/' ? '' : 'container mx-auto'">
+  <router-outlet />
+</div>
