@@ -1,25 +1,23 @@
-using API.Data;
 using API.Entities;
-using Microsoft.AspNetCore.Http;
+using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    public class MembersController(AppDBContext context) : BaseApiController
+    public class MembersController(IMemberRepository memberRepository) : BaseApiController
     {
+        [Authorize]
         [HttpGet]
-        public async Task<ActionResult<IReadOnlyList<AppUser>>> GetMemberss()
+        public async Task<ActionResult<IReadOnlyList<Member>>> GetMemberss()
         {
-            var members = await context.Users.ToListAsync();
-
-            return members;
+            return Ok(await memberRepository.GetMembersAsync());
         }
 
-        [HttpGet("{ID}")]
-        public async Task<ActionResult<AppUser>> GetMember(string id)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Member>> GetMember(string id)
         {
-            var member = await context.Users.FindAsync(id);
+            var member = await memberRepository.GetMemberByIdAsync(id);
 
             if (member == null)
             {
@@ -27,6 +25,12 @@ namespace API.Controllers
             }
 
             return member;
+        }
+
+        [HttpGet("{id}/photos")]
+        public async Task<ActionResult<IReadOnlyList<Photo>>> GetMemberPhotos(string id)
+        {
+            return Ok(await memberRepository.GetPhotosForMemberAsync(id));
         }
     }
 }
