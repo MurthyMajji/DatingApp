@@ -15,7 +15,7 @@ export class AccountServices {
   register(creds: IRegisterCreds) {
     return this.http.post<IUser>(this.baseUrl + 'account/register', creds).pipe(
       tap((user) => {
-        this.setUserLocalStorage(user);
+        this.setCurrentUser(user);
       }),
     );
   }
@@ -24,15 +24,15 @@ export class AccountServices {
     return this.http.post<IUser>(this.baseUrl + 'account/login', creds).pipe(
       tap((user) => {
         if (user) {
-          this.setUserLocalStorage(user);
+          this.setCurrentUser(user);
         }
       }),
     );
   }
 
-  setUserLocalStorage(user: IUser) {
-    this.currentUser.set(user);
+  setCurrentUser(user: IUser) {
     localStorage.setItem('user', JSON.stringify(user));
+    this.currentUser.set(user);
   }
 
   logout() {

@@ -1,4 +1,4 @@
-@if (member(); as member) {
+@if (memberService.member(); as member) {
   <div class="flex flex-col gap-3">
     <p><span class="font-semibold">Member since:</span> {{ member.created | date: 'longDate' }}</p>
     <p>
@@ -6,6 +6,50 @@
       {{ member.lastActive | date: 'dd MM yyyy h:mm:ss' }}
     </p>
     <h3 class="text-lg font-semibold text-primary">About {{ member.displayName }}</h3>
-    <p>{{ member.description }}</p>
+    @if (memberService.editMode()) {
+      <form
+        [formGroup]="profileForm"
+        (ngSubmit)="updateMember()"
+        class="flex flex-col w-full gap-4"
+      >
+        <label class="floating-label">
+          <span>Display Name</span>
+          <input
+            class="input w-full"
+            formControlName="displayName"
+            type="text"
+            placeholder="Display Name"
+          />
+        </label>
+        <label class="floating-label">
+          <span>Date of Birth</span>
+          <input class="input w-full" formControlName="dateofBirth" type="date" />
+        </label>
+        <label class="floating-label">
+          <span>Description</span>
+          <textarea
+            class="textarea w-full"
+            formControlName="description"
+            placeholder="Description"
+            rows="3"
+          ></textarea>
+        </label>
+        <label class="floating-label">
+          <span>City</span>
+          <input class="input w-full" formControlName="city" type="text" placeholder="City" />
+        </label>
+        <label class="floating-label">
+          <span>Country</span>
+          <input class="input w-full" formControlName="country" type="text" placeholder="Country" />
+        </label>
+        <div class="flex self-end">
+          <button type="submit" class="btn btn-success" [disabled]="!profileForm.dirty">
+            Submit
+          </button>
+        </div>
+      </form>
+    } @else {
+      <p>{{ member.description }}</p>
+    }
   </div>
 }

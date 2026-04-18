@@ -4,6 +4,7 @@ import { AccountServices } from '../../core/services/account-services';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { ToastService } from '../../core/services/toast-service';
 import { themes } from '../theme';
+import { BusyService } from '../../core/services/busy-service';
 
 @Component({
   selector: 'app-header',
@@ -15,6 +16,7 @@ export class Header implements OnInit {
   protected accountServices = inject(AccountServices);
   protected router = inject(Router);
   private toast = inject(ToastService);
+  protected busyService = inject(BusyService);
   protected creds: any = {};
   protected selectedTheme = signal<string>(localStorage.getItem('theme') || 'light');
   protected themes = themes;
@@ -40,12 +42,18 @@ export class Header implements OnInit {
   logout() {
     this.router.navigateByUrl('/');
     this.accountServices.logout();
+    this.closeDropdown();
+    this.toast.info('Logged out successfully!');
   }
 
   changeTheme(theme: string) {
     this.selectedTheme.set(theme);
     localStorage.setItem('theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
+    this.closeDropdown();
+  }
+
+  closeDropdown() {
     const elem = document.activeElement as HTMLElement;
     if (elem) {
       elem.blur();

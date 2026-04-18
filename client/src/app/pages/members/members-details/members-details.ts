@@ -10,6 +10,8 @@ import {
 import { filter } from 'rxjs';
 import { Member } from '../../../types/member';
 import { AgePipe } from '../../../core/pipes/age-pipe';
+import { AccountServices } from '../../../core/services/account-services';
+import { MemberService } from '../../../core/services/member-service';
 
 @Component({
   selector: 'app-members-details',
@@ -25,26 +27,40 @@ export class MembersDetails implements OnInit {
   //private memberService = inject(MemberService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private accountServices = inject(AccountServices);
   //Before using resolver
   // protected member$?: Observable<Member>;
   //After using resolver
-  protected member = signal<Member | null>(null);
+  // protected member = signal<Member | null>(null);
   protected title = signal<string>('Profile');
+  protected isCurrentUser = signal<boolean>(false);
+  protected memberService = inject(MemberService);
 
   ngOnInit(): void {
     //Before using resolver
     // this.member$ = this.loadMemberDetails();
     //After using resolver
-    this.route.data.subscribe({
-      next: (data) => {
-        this.member.set(data['member']);
-      },
-    });
+    // this.route.data.subscribe({
+    //   next: (data) => {
+    //     this.member.set(data['member']);
+    //   },
+    // });
     this.title.set(this.route.firstChild?.snapshot.title || 'Profile');
 
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe({
       next: () => {
         this.title.set(this.route.firstChild?.snapshot.title || 'Profile');
+      },
+    });
+
+    this.route.paramMap.subscribe({
+      next: (params) => {
+        const memberId = params.get('id');
+        if (memberId && this.accountServices.currentUser()?.id === memberId) {
+          this.isCurrentUser.set(true);
+        } else {
+          this.isCurrentUser.set(false);
+        }
       },
     });
   }
@@ -54,4 +70,8 @@ export class MembersDetails implements OnInit {
   //   if (!memberId) return;
   //   return this.memberService.getMember(memberId);
   // }
+
+  editClick() {
+    this.memberService.editMode.set(!this.memberService.editMode());
+  }
 }
