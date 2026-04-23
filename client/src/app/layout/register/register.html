@@ -1,32 +1,92 @@
 <div class="card bg-base-100 w-1/2 mx-auto flex flex-col p-6 rounded-lg shadow-lg">
   <div class="card-title justify-center text-3xl text-primary">Sign up</div>
   <div class="card-body w-full">
-    <form #registerForm="ngForm" class="flex flex-col gap-4 w-full" (ngSubmit)="register()">
-      <input
-        [(ngModel)]="creds.displayName"
-        name="name"
-        type="text"
-        class="input w-full"
-        placeholder="User Name"
-      />
-      <input
-        [(ngModel)]="creds.email"
-        name="email"
-        type="text"
-        class="input w-full"
-        placeholder="Email"
-      />
-      <input
-        [(ngModel)]="creds.password"
-        name="password"
-        type="password"
-        class="input w-full"
-        placeholder="Password"
-      />
-      <div class="flex items-center justify-end gap-3">
-        <button class="btn btn-primary" type="submit">Register</button>
-        <button class="btn btn-outline btn-error" (click)="cancel()">Cancel</button>
-      </div>
-    </form>
+    <ul class="steps steps-vertical lg:steps-horizontal">
+      <li class="step step-primary">Credentials</li>
+      <li class="step" [class.step-primary]="currentStep() == 2">Profile</li>
+    </ul>
+    @if (currentStep() === 1) {
+      <form
+        [formGroup]="credentialsForm"
+        class="flex flex-col gap-4 w-full steps pt-2"
+        (ngSubmit)="nextStep()"
+      >
+        <app-input-field label="Display Name" formControlName="displayName"></app-input-field>
+        <app-input-field label="Email" formControlName="email"></app-input-field>
+        <app-input-field
+          label="Password"
+          formControlName="password"
+          type="password"
+        ></app-input-field>
+        <app-input-field
+          label="Confirm Password"
+          formControlName="confirmPassword"
+          type="password"
+        ></app-input-field>
+        <div class="flex items-center justify-end gap-3">
+          <button class="btn btn-outline btn-error" type="button" (click)="cancel()">Cancel</button>
+          <button class="btn btn-primary" type="submit" [disabled]="!credentialsForm.valid">
+            Next
+          </button>
+        </div>
+      </form>
+    }
+    @if (currentStep() === 2) {
+      <form
+        [formGroup]="profileForm"
+        class="flex flex-col gap-4 w-full steps pt-2"
+        (ngSubmit)="register()"
+      >
+        <div class="flex items-center justify-items-start gap-4">
+          <p class="font-semibold">Gender:</p>
+          <label class="flex gap-3 items-center">
+            <span>Male</span>
+            <input
+              type="radio"
+              formControlName="gender"
+              value="male"
+              class="radio radio-primary"
+            /> </label
+          ><label class="flex gap-3 items-center">
+            <span>Female</span>
+            <input
+              type="radio"
+              formControlName="gender"
+              value="female"
+              class="radio radio-primary"
+            />
+          </label>
+        </div>
+        <app-input-field
+          label="Date of Birth"
+          [max]="getMaxDate()"
+          type="date"
+          formControlName="dateOfBirth"
+        ></app-input-field>
+        <app-input-field label="City" formControlName="city"></app-input-field>
+        <app-input-field label="Country" formControlName="country"></app-input-field>
+
+        <div class="flex items-center justify-end gap-3">
+          <button class="btn btn-outline btn-error" (click)="prevStep()">Back</button>
+          <button
+            class="btn btn-primary"
+            type="button"
+            (click)="register()"
+            [disabled]="!profileForm.valid"
+          >
+            Register
+          </button>
+        </div>
+      </form>
+    }
   </div>
+  @if (validationErrors().length > 0) {
+    <div class="mt-5 flex bg-gray-200 rounded-2xl w-1/2 p-3 mx-auto">
+      <ul class="flex flex-col text-error space-y-1">
+        @for (error of validationErrors(); track $index) {
+          <li>{{ error }}</li>
+        }
+      </ul>
+    </div>
+  }
 </div>

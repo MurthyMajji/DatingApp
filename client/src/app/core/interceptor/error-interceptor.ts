@@ -23,6 +23,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
               throw modelStateErrors.flat();
             } else {
               toast.error(error.error + ' ' + error.status);
+              throw [error.error];
             }
             break;
           case 401:

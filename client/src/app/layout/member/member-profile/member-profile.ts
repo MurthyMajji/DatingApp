@@ -16,7 +16,7 @@ export class MemberProfile implements OnInit, OnDestroy {
   protected memberService = inject(MemberService);
   protected toast = inject(ToastService);
   protected accountServices = inject(AccountServices);
-  profileForm = new FormGroup({
+  profileForm: FormGroup = new FormGroup({
     displayName: new FormControl(''),
     dateofBirth: new FormControl(''),
     description: new FormControl(''),

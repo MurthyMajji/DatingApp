@@ -24,4 +24,8 @@ export interface IRegisterCreds {
   email: string;
   password: string;
   displayName: string;
+  gender: string;
+  dateOfBirth: string;
+  city: string;
+  country: string;
 }
