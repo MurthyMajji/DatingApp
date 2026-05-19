@@ -43,6 +43,10 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
     invalidateCache('/messages');
   }
 
+  if (req.method === 'POST' && req.url.includes('/logout')) {
+    cache.clear();
+  }
+
   busyService.busy();
 
   return next(req).pipe(

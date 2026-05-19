@@ -21,12 +21,14 @@ export class Header implements OnInit {
   protected creds: any = {};
   protected selectedTheme = signal<string>(localStorage.getItem('theme') || 'light');
   protected themes = themes;
+  protected loading = signal(false);
 
   ngOnInit(): void {
     document.documentElement.setAttribute('data-theme', this.selectedTheme());
   }
 
   login() {
+    this.loading.set(true);
     this.accountServices.login(this.creds).subscribe({
       next: (result) => {
         this.router.navigateByUrl('/members');
@@ -36,6 +38,9 @@ export class Header implements OnInit {
       error: (err) => {
         console.warn(err.error);
         this.toast.error(err.error);
+      },
+      complete: () => {
+        this.loading.set(false);
       },
     });
   }

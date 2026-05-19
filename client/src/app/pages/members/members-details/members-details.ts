@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import {
   ActivatedRoute,
   NavigationEnd,
@@ -13,6 +13,7 @@ import { AgePipe } from '../../../core/pipes/age-pipe';
 import { AccountServices } from '../../../core/services/account-services';
 import { MemberService } from '../../../core/services/member-service';
 import { PresenceService } from '../../../core/services/presence-service';
+import { LikesService } from '../../../core/services/likes-service';
 
 @Component({
   selector: 'app-members-details',
@@ -30,13 +31,26 @@ export class MembersDetails implements OnInit {
   private router = inject(Router);
   private accountServices = inject(AccountServices);
   protected presenceService = inject(PresenceService);
+  protected likesService = inject(LikesService);
   //Before using resolver
   // protected member$?: Observable<Member>;
   //After using resolver
   // protected member = signal<Member | null>(null);
   protected title = signal<string>('Profile');
-  protected isCurrentUser = signal<boolean>(false);
   protected memberService = inject(MemberService);
+  private memberID = signal<string | null>('');
+
+  protected isCurrentUser = computed(() => {
+    const currentId = this.memberID();
+    const loggedInUser = this.accountServices.currentUser();
+    return loggedInUser !== null && loggedInUser?.id === currentId;
+  });
+
+  protected hasLiked = computed(() => {
+    const currentId = this.memberID();
+    if (!currentId) return false;
+    return this.likesService.likeIds().includes(currentId);
+  });
 
   ngOnInit(): void {
     //Before using resolver
@@ -57,12 +71,7 @@ export class MembersDetails implements OnInit {
 
     this.route.paramMap.subscribe({
       next: (params) => {
-        const memberId = params.get('id');
-        if (memberId && this.accountServices.currentUser()?.id === memberId) {
-          this.isCurrentUser.set(true);
-        } else {
-          this.isCurrentUser.set(false);
-        }
+        this.memberID.set(params.get('id'));
       },
     });
   }

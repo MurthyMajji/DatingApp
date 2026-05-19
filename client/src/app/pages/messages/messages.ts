@@ -6,10 +6,11 @@ import { Paginator } from '../../shared/paginator/paginator';
 import { RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { DeleteButton } from '../../shared/delete-button/delete-button';
+import { Modal } from '../../shared/modal/modal';
 
 @Component({
   selector: 'app-messages',
-  imports: [Paginator, RouterLink, DatePipe, DeleteButton],
+  imports: [Paginator, RouterLink, DatePipe, DeleteButton, Modal],
   templateUrl: './messages.html',
   styleUrl: './messages.css',
 })
@@ -22,6 +23,8 @@ export class Messages implements OnInit {
     { label: 'Outbox', value: 'Outbox' },
   ];
   protected fetchedContainer = 'Inbox';
+  protected isModalOpen = signal<boolean>(false);
+  protected deleteMsgId = '';
 
   ngOnInit(): void {
     this.loadMessages();
@@ -36,21 +39,25 @@ export class Messages implements OnInit {
     });
   }
 
-  deleteMessages(event: Event, id: string) {
-    event.stopPropagation();
-    this.messageService.deleteMessage(id).subscribe({
+  deleteMessages() {
+    this.messageService.deleteMessage(this.deleteMsgId).subscribe({
       next: () => {
         const currentMessages = this.paginatedMessages();
         if (currentMessages?.items) {
           this.paginatedMessages.update((prev) => {
             if (!prev) return prev;
-            const newMessages = prev.items.filter((message) => message.id !== id) || [];
+            const newMessages =
+              prev.items.filter((message) => message.id !== this.deleteMsgId) || [];
             return {
               metaData: prev.metaData,
               items: newMessages,
             };
           });
         }
+      },
+      complete: () => {
+        this.deleteMsgId = '';
+        this.isModalOpen.set(false);
       },
     });
   }
@@ -69,5 +76,19 @@ export class Messages implements OnInit {
     this.messagesParams.pageSize = event.pageSize;
     this.messagesParams.pageNumber = event.pageNumber;
     this.loadMessages();
+  }
+
+  setModalOpen(event: Event, id: string) {
+    event.stopPropagation();
+    this.deleteMsgId = id;
+    this.isModalOpen.set(true);
+  }
+
+  cancel() {
+    this.isModalOpen.set(false);
+  }
+
+  confirm() {
+    this.deleteMessages();
   }
 }

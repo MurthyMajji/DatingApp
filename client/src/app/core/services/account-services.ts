@@ -77,10 +77,14 @@ export class AccountServices {
   }
 
   logout() {
-    this.presenceService.stopConnection();
-    localStorage.removeItem('filters');
-    this.currentUser.set(null);
-    this.likesService.clearLikeIds();
+    this.http.post(this.baseUrl + 'account/logout', {}, { withCredentials: true }).subscribe({
+      next: () => {
+        localStorage.removeItem('filters');
+        this.currentUser.set(null);
+        this.likesService.clearLikeIds();
+        this.presenceService.stopConnection();
+      },
+    });
   }
 
   private getRolesFromToken(user: IUser): string[] {
