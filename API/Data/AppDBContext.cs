@@ -21,6 +21,8 @@ public class AppDBContext(DbContextOptions options) : IdentityDbContext<AppUser>
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<Photo>().HasQueryFilter(p => p.IsApproved);
+
         modelBuilder.Entity<IdentityRole>()
             .HasData(
                 new IdentityRole { Id = "member-id", Name = "Member", ConcurrencyStamp = "member-id-stamp", NormalizedName = "MEMBER" },

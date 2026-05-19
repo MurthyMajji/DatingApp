@@ -1,0 +1,36 @@
+using System;
+using API.DTOs;
+using API.Entities;
+using API.Interfaces;
+using Microsoft.EntityFrameworkCore;
+
+namespace API.Data;
+
+public class PhotoRepository(AppDBContext context) : IPhotoRepository
+{
+    public async Task<IReadOnlyList<PhotoForApprovalDto>> GetUnapprovedPhotos()
+    {
+        return await context.Photos
+        .IgnoreQueryFilters()
+        .Where(p => p.IsApproved == false)
+        .Select(p => new PhotoForApprovalDto
+        {
+            Id = p.Id,
+            Url = p.Url,
+            UserId = p.MemberId,
+            IsApproved = p.IsApproved
+        }).ToListAsync();
+    }
+
+    public async Task<Photo?> GetPhotoById(int id)
+    {
+        return await context.Photos
+        .IgnoreQueryFilters()
+        .SingleOrDefaultAsync(p => p.Id == id);
+    }
+
+    public void RemovePhoto(Photo photo)
+    {
+        context.Photos.Remove(photo);
+    }
+}

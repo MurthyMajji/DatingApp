@@ -36,7 +36,9 @@ namespace API.Controllers
         [HttpGet("{id}/photos")]
         public async Task<ActionResult<IReadOnlyList<Photo>>> GetMemberPhotos(string id)
         {
-            return Ok(await uow.MemberRepository.GetPhotosForMemberAsync(id));
+            var isCurrentUser = User.GetMemberId() == id;
+
+            return Ok(await uow.MemberRepository.GetPhotosForMemberAsync(id, isCurrentUser));
         }
 
         [HttpPut("{id}")]
@@ -78,11 +80,12 @@ namespace API.Controllers
                 MemberId = User.GetMemberId(),
             };
 
-            if (member.ImageUrl == null)
-            {
-                member.ImageUrl = photo.Url;
-                member.AppUser.ImageUrl = photo.Url;
-            }
+            ///Should not be added as a profile image till photo gets approved
+            // if (member.ImageUrl == null)
+            // {
+            //     member.ImageUrl = photo.Url;
+            //     member.AppUser.ImageUrl = photo.Url;
+            // }
 
             member.Photos.Add(photo);
 
@@ -122,6 +125,15 @@ namespace API.Controllers
             if (member == null) return BadRequest("User not found");
 
             var photo = member.Photos.SingleOrDefault(p => p.Id == photoId);
+
+            if (member.Photos != null)
+            {
+                Console.WriteLine($"Total photos in collection: {member.Photos.Count}");
+                foreach (var p in member.Photos)
+                {
+                    Console.WriteLine($"-> Available Photo ID in memory: {p.Id}");
+                }
+            }
 
             if (photo == null) return BadRequest("Photo not found");
 
