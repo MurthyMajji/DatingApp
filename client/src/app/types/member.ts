@@ -11,13 +11,6 @@ export type Member = {
   lastActive: string;
 };
 
-export type Photo = {
-  id: number;
-  url: string;
-  publicId?: string;
-  memberId: string;
-};
-
 export type EditableMember = {
   displayName: string;
   dateofBirth: string;

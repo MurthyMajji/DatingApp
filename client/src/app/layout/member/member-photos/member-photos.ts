@@ -1,12 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { MemberService } from '../../../core/services/member-service';
 import { ActivatedRoute } from '@angular/router';
-import { Member, Photo } from '../../../types/member';
+import { Member } from '../../../types/member';
 import { ImageUpload } from '../../../shared/image-upload/image-upload';
 import { AccountServices } from '../../../core/services/account-services';
 import { IUser } from '../../../types/user';
 import { StarButton } from '../../../shared/star-button/star-button';
 import { DeleteButton } from '../../../shared/delete-button/delete-button';
+import { Photo } from '../../../types/photo';
 
 @Component({
   selector: 'app-member-photos',
@@ -38,9 +39,9 @@ export class MemberPhotos implements OnInit {
     this.memberService.uploadPhoto(file).subscribe({
       next: (photo) => {
         this.photos.update((photos) => [...photos, photo]);
-        if (!this.memberService.member()?.imageUrl) {
-          this.setAsMainPhoto(photo);
-        }
+        // if (!this.memberService.member()?.imageUrl) {
+        //   this.setAsMainPhoto(photo);
+        // }
         this.loading.set(false);
         this.memberService.editMode.set(false);
       },

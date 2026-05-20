@@ -1,1 +1,18 @@
-<p>photo-management works!</p>
+<div class="grid grid-cols-5 gap-6">
+  @for (photo of photos(); track photo.id) {
+    <div class="card p-1 card-border">
+      <div class="rounded-lg overflow-hidden relative">
+        <img src="{{ photo.url }}" class="w-full object-cover" alt="user image" />
+        <div
+          class="z-40 absolute bottom-0 w-full px-3 py-1 bg-linear-to-t from-black via-black/75 to-transparent"
+        >
+          <h5 class="font-semibold text-white">{{ photo.userName }}</h5>
+        </div>
+      </div>
+      <div class="card-actions flex justify-between w-full gap-2 mt-1">
+        <button class="btn btn-success flex-1" (click)="approvePhoto(photo.id)">Approve</button>
+        <button class="btn btn-error flex-1" (click)="rejectPhoto(photo.id)">Reject</button>
+      </div>
+    </div>
+  }
+</div>

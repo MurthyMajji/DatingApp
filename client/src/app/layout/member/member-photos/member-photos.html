@@ -4,14 +4,26 @@
       <div class="grid grid-cols-4 auto-rows-min gap-3 h-[65vh] overflow-auto">
         @for (photo of photos; track photo.id) {
           <div class="relative">
-            <img class="w-full rounded-lg" [src]="photo.url" class="photo of member" />
+            <img
+              class="w-full rounded-lg"
+              [class.opacity-30]="!photo.isApproved"
+              [src]="photo.url"
+              alt="photo of member"
+            />
+            @if (!photo.isApproved) {
+              <div class="absolute w-full flex justify-center bottom-2">
+                <p class="badge badge-outline badge-error text-center">Awaiting approval</p>
+              </div>
+            }
             @if (accountService.currentUser()?.id == memberService.member()?.id) {
-              <app-star-button
-                class="absolute top-1 right-1"
-                (clickEvent)="setProfilePhoto(photo)"
-                [disabled]="photo.url === memberService.member()?.imageUrl"
-                [selected]="photo.url === memberService.member()?.imageUrl"
-              ></app-star-button>
+              @if (photo.isApproved) {
+                <app-star-button
+                  class="absolute top-1 right-1"
+                  (clickEvent)="setProfilePhoto(photo)"
+                  [disabled]="photo.url === memberService.member()?.imageUrl"
+                  [selected]="photo.url === memberService.member()?.imageUrl"
+                ></app-star-button>
+              }
               <app-delete-button
                 class="absolute top-1 left-1"
                 (clickEvent)="deletePhoto(photo.id)"

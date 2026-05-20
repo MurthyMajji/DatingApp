@@ -18,6 +18,7 @@ public class PhotoRepository(AppDBContext context) : IPhotoRepository
             Id = p.Id,
             Url = p.Url,
             UserId = p.MemberId,
+            UserName = p.Member.DisplayName,
             IsApproved = p.IsApproved
         }).ToListAsync();
     }

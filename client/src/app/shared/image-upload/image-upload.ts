@@ -38,7 +38,6 @@ export class ImageUpload {
 
   protected onFileSelected(event: Event) {
     const fileInput = event.target as HTMLInputElement;
-    console.log(fileInput.files);
     if (fileInput.files && fileInput.files[0]) {
       const file = fileInput.files[0];
       this.previewImage(file);
