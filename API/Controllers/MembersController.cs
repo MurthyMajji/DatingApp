@@ -126,15 +126,6 @@ namespace API.Controllers
 
             var photo = member.Photos.SingleOrDefault(p => p.Id == photoId);
 
-            if (member.Photos != null)
-            {
-                Console.WriteLine($"Total photos in collection: {member.Photos.Count}");
-                foreach (var p in member.Photos)
-                {
-                    Console.WriteLine($"-> Available Photo ID in memory: {p.Id}");
-                }
-            }
-
             if (photo == null) return BadRequest("Photo not found");
 
             if (photo.Url == member.ImageUrl) return BadRequest("Cannot delete main photo");
