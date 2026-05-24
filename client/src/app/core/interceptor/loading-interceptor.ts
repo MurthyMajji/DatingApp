@@ -4,7 +4,13 @@ import { BusyService } from '../services/busy-service';
 import { delay, finalize, identity, of, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
-const cache = new Map<string, HttpResponse<any>>();
+type CacheEntry = {
+  response: HttpResponse<unknown>;
+  timeStamp: number;
+};
+
+const cache = new Map<string, CacheEntry>();
+const CACHE_DURATION_MS = 5 * 60 * 1000; // 5mins
 
 export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   const busyService = inject(BusyService);
@@ -20,6 +26,7 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   // const cacheKey = generateCacheKey(req.url, req.params);
 
   // Instead of using the above logic, we can use Built-in Angular way to get URL + Params
+
   const cacheKey = req.urlWithParams;
 
   const invalidateCache = (urlPattern: string) => {
@@ -33,7 +40,12 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   if (req.method === 'GET') {
     const cachedResponse = cache.get(cacheKey);
     if (cachedResponse) {
-      return of(cachedResponse);
+      const isExpired = Date.now() - cachedResponse.timeStamp > CACHE_DURATION_MS;
+      if (!isExpired) {
+        return of(cachedResponse.response);
+      } else {
+        cache.delete(cacheKey);
+      }
     }
   }
 
@@ -54,7 +66,10 @@ export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
     environment.production ? identity : delay(500),
     tap((response) => {
       if (response instanceof HttpResponse && req.method === 'GET') {
-        cache.set(cacheKey, response);
+        cache.set(cacheKey, {
+          response,
+          timeStamp: Date.now(),
+        });
       }
     }),
     finalize(() => {

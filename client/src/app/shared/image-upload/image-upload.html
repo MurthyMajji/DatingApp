@@ -7,11 +7,11 @@
       (change)="onFileSelected($event)"
       [class.border-purple-600]="isDragOver"
       [class.border-4]="isDragOver"
-      [class.bg-purple-100]="isDragOver"
+      [class.bg-secondary/5]="isDragOver"
       for="dropzone-file"
       class="flex flex-col items-center justify-center w-full h-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
     >
-      <p class="mb-2 text-lg">
+      <p class="mb-2 text-lg text-gray-500">
         <span class="font-semibold">Click to upload</span> or drag and drop
       </p>
       <p class="text-xs text-gray-500">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>

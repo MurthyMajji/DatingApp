@@ -16,6 +16,7 @@ export class AccountServices {
   private presenceService = inject(PresenceService);
   currentUser = signal<IUser | null>(null);
   private baseUrl = environment.apiUrl;
+  private refreshInterval: ReturnType<typeof setInterval> | null = null;
 
   register(creds: IRegisterCreds) {
     return this.http
@@ -50,7 +51,11 @@ export class AccountServices {
   }
 
   startTokenRefreshInterval() {
-    setInterval(
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+
+    this.refreshInterval = setInterval(
       () => {
         this.http
           .post<IUser>(this.baseUrl + 'account/refresh-token', {}, { withCredentials: true })
@@ -63,8 +68,16 @@ export class AccountServices {
             },
           });
       },
-      5 * 60 * 1000,
+      // 5 * 60 * 1000, 5mins
+      14 * 24 * 60 * 60 * 1000, //14days
     );
+  }
+
+  stopTokenRefreshInterval() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+      this.refreshInterval = null;
+    }
   }
 
   setCurrentUser(user: IUser) {
@@ -79,6 +92,7 @@ export class AccountServices {
   logout() {
     this.http.post(this.baseUrl + 'account/logout', {}, { withCredentials: true }).subscribe({
       next: () => {
+        this.stopTokenRefreshInterval();
         localStorage.removeItem('filters');
         this.currentUser.set(null);
         this.likesService.clearLikeIds();
