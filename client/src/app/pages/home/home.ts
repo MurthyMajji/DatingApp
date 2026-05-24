@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Register } from '../../layout/register/register';
+import { AccountServices } from '../../core/services/account-services';
 
 @Component({
   selector: 'app-home',
@@ -8,6 +9,7 @@ import { Register } from '../../layout/register/register';
   styleUrl: './home.css',
 })
 export class Home {
+  protected accountService = inject(AccountServices);
   protected registerMode = signal(false);
 
   showRegister(value: boolean) {
